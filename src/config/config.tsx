@@ -54,6 +54,7 @@ export const MIN_DELIVERY_TIME = 3;
 export const DISCORD_LINK = 'https://discord.com/invite/fpVMmerNZm';
 
 export const API_URL = DEV ? 'http://localhost:8000' : 'https://api.clipto.io';
+export const SOCKET_URL = DEV ? 'ws://localhost:8000' : 'ws://api.clipto.io';
 
 export const getPolygonScan = (addr: string) =>
   ENV === 'TEST' ? `https://mumbai.polygonscan.com/token/${addr}` : `https://polygonscan.com/token/${addr}`;

@@ -2,7 +2,7 @@ import { Web3Provider } from '@ethersproject/providers';
 import { OverlayContainer, OverlayProvider } from '@react-aria/overlays';
 import { useWeb3React } from '@web3-react/core';
 import axios from 'axios';
-import React, { useCallback, useEffect, useState } from 'react';
+import React, { useCallback, useContext, useEffect, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import create, { State } from 'zustand';
@@ -25,6 +25,9 @@ import { useSelector, useDispatch } from 'react-redux';
 // import { MetamaskIcon } from './icons/MetamaskIcon';
 // import { WalletConnectIcon } from './icons/WalletConnectIcon';
 import { HiOutlineArrowRight } from 'react-icons/hi';
+import { SocketContext } from '../context/socket';
+import { toast } from 'react-toastify';
+import { NotificationMessage } from '../context/types';
 const MAX_HEADER_WIDTH_IN_PX = MAX_CONTENT_WIDTH_PX;
 
 const HEADER_HEIGHT_IN_PX = '64px';
@@ -186,26 +189,46 @@ const Header: React.FC<HeaderProps> = () => {
   const { activate, account, deactivate, chainId } = useWeb3React<Web3Provider>();
   const [chainDialog, setChainDialog] = useState<boolean | null>(false);
   const currentChainName = CHAIN_NAMES[DEFAULT_CHAIN_ID];
-
   const showLoginDialog = useHeaderStore((s) => s.showDialog);
   const setShowLoginDialog = useHeaderStore((s) => s.setShowDialog);
   const setHasTriedEagerConnecting = useHeaderStore((s) => s.setHasTriedEagerConnecting);
-
   const showProfileDropDown = useHeaderStore((s) => s.showProfileDropDown);
   const setShowProfileDropDown = useHeaderStore((s) => s.setShowProfileDropDown);
   const dropDropRef = React.useRef<HTMLDivElement>(null);
-
   const userEnsName = useEns();
-
   const hasTriedEagerConnect = useEagerConnect();
-
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
   const [loggedInProfile, setLoggedInProfile] = useState<Partial<UserProfile> | null>();
-
   const user = useSelector((state: any) => state.user);
   const dispatch = useDispatch();
-
   const navigate = useNavigate();
+  const socket = useContext(SocketContext);
+
+  const requestNotificationPermission = () => {
+    if (Notification.permission === 'granted') {
+      return;
+    }
+    Notification.requestPermission();
+  };
+
+  const notify = (notification: NotificationMessage) => {
+    if (Notification.permission === 'granted') {
+      toast.success(notification.message);
+      new Notification(notification.message);
+    }
+  };
+
+  useEffect(() => {
+    if (Notification.permission !== 'granted') {
+      requestNotificationPermission();
+    } else {
+      if (account) {
+        socket.on(`/notification/${account}`, (data: NotificationMessage) => {
+          notify(data);
+        });
+      }
+    }
+  }, [account]);
 
   useEffect(() => {
     setHasTriedEagerConnecting(hasTriedEagerConnect);
