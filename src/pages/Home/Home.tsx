@@ -1,11 +1,14 @@
 import { useTheme } from 'styled-components';
+import { createProfile, CreateProfileRequest } from '../../api/len-query';
 import { EntityCreator } from '../../api/types';
 import pfp5 from '../../assets/images/pfps/cc.png';
 import pfp1 from '../../assets/images/pfps/g1.jpeg';
 import pfp4 from '../../assets/images/pfps/g2.jpeg';
+import { PrimaryButton } from '../../components/Button';
 import { HeaderContentGapSpacer, HeaderSpacer } from '../../components/Header/Header';
 import { ContentWrapper, PageContentWrapper, PageWrapper } from '../../components/layout/Common';
 import { UserDisplay } from '../../components/UserDisplay/UserDisplay';
+import { login } from '../../utils/len';
 import { HeroTitle } from './Style';
 
 // TODO(johnrjj) - Fetch remotely
@@ -51,6 +54,22 @@ const HomePage = () => {
         <HeaderContentGapSpacer />
         <PageContentWrapper>
           <ContentWrapper>
+          <PrimaryButton
+            size="small"
+            width="small"
+            style={{ marginRight: 40, maxWidth: 150, background: '#5865F2', color: 'white' }}
+            onPress={async () => {
+              const authRes = await login()
+              const profile : CreateProfileRequest = {
+                handle: '0xjonomnom123'
+              }
+              console.log('asdf')
+              console.log(authRes.data.authenticate)
+              await createProfile(profile, authRes.data.authenticate.accessToken)
+            }}
+          >
+            Login and create profile
+          </PrimaryButton>
             <HeroTitle>
               Personalized videos from your favorite{' '}
               <span style={{ color: theme.yellow, fontWeight: '700' }}>crypto stars</span>
