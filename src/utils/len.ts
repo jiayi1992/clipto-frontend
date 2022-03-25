@@ -1,5 +1,5 @@
 import { ethers } from 'ethers';
-import { authenticate, generateChallenge } from '../api/len-query';
+import { authenticate, generateChallenge, getLenQuery } from '../api/len-query';
 
 // This code will assume you are using MetaMask.
 // It will also assume that you have already done all the connecting to metamask
@@ -15,6 +15,10 @@ export const signText = (text : string) => {
   const signer = ethersProvider.getSigner()
   
   return signer.signMessage(text)
+}
+
+export const getUser = (address : string) => {
+  return getLenQuery(address)
 }
 
 

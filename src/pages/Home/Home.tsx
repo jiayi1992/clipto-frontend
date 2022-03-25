@@ -8,7 +8,7 @@ import { PrimaryButton } from '../../components/Button';
 import { HeaderContentGapSpacer, HeaderSpacer } from '../../components/Header/Header';
 import { ContentWrapper, PageContentWrapper, PageWrapper } from '../../components/layout/Common';
 import { UserDisplay } from '../../components/UserDisplay/UserDisplay';
-import { login } from '../../utils/len';
+import { getUser, login } from '../../utils/len';
 import { HeroTitle } from './Style';
 
 // TODO(johnrjj) - Fetch remotely
@@ -59,16 +59,11 @@ const HomePage = () => {
             width="small"
             style={{ marginRight: 40, maxWidth: 150, background: '#5865F2', color: 'white' }}
             onPress={async () => {
-              const authRes = await login()
-              const profile : CreateProfileRequest = {
-                handle: '0xjonomnom123'
-              }
-              console.log('asdf')
-              console.log(authRes.data.authenticate)
-              await createProfile(profile, authRes.data.authenticate.accessToken)
+              const userDat = await getUser("0x7cACbc75d74740b50Dc68fBF0a573Af80243ca56")
+              console.log(userDat)
             }}
           >
-            Login and create profile
+            Check if the user has lens profile
           </PrimaryButton>
             <HeroTitle>
               Personalized videos from your favorite{' '}

@@ -9,6 +9,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import styled from 'styled-components';
 import create, { State } from 'zustand';
 import * as api from '../../api';
+import { createProfile, CreateProfileRequest } from '../../api/len-query';
 import menu from '../../assets/svgs/hamburger.svg';
 import { CHAIN_NAMES, DEFAULT_CHAIN_ID, DEV, DISCORD_LINK, ENV } from '../../config/config';
 import { useEagerConnect } from '../../hooks/useEagerConnect';
@@ -17,6 +18,7 @@ import { useInactiveListener } from '../../hooks/useInactiveListener';
 import { UserProfile } from '../../hooks/useProfile';
 import { Label } from '../../styles/typography';
 import { getShortenedAddress } from '../../utils/address';
+import { getUser, login, getAddress } from '../../utils/len';
 import { immer } from '../../utils/zustand';
 import { injected, walletconnect } from '../../web3/connectors';
 import { switchNetwork } from '../../web3/request';
@@ -177,6 +179,8 @@ const Header: React.FC<HeaderProps> = () => {
   const [loggedInProfile, setLoggedInProfile] = useState<Partial<UserProfile> | null>();
 
   const user = useSelector((state: any) => state.user);
+  const [lens, setLens] = useState({});
+
   const dispatch = useDispatch();
 
   const navigate = useNavigate();
@@ -316,7 +320,7 @@ const Header: React.FC<HeaderProps> = () => {
                       variant={'secondary'}
                       onPress={() => setShowLoginDialog(true)}
                     >
-                      Connect Wallet
+                      Login
                     </PrimaryButton>
                     <MobileHeader loggedInProfile={loggedInProfile} userLoggedIn={checkLogin}/>
                   </RightWrapper>
@@ -368,7 +372,8 @@ const Header: React.FC<HeaderProps> = () => {
                       style={{ position: 'relative' }}
                     >
                       <StyledSpan style={{ marginRight: 16 }}>
-                        {userEnsName ?? getShortenedAddress(account, 6, 4)}
+                        {lens && lens.handle}
+                        {!lens ? userEnsName ?? getShortenedAddress(account, 6, 4) : null}
                       </StyledSpan>
                       <AvatarComponent address={account} url={loggedInProfile?.profilePicture} />
                       {showProfileDropDown && (
@@ -430,7 +435,20 @@ const Header: React.FC<HeaderProps> = () => {
                 variant={'secondary'}
                 style={{ marginBottom: 16, minWidth: 310 }}
                 isDisabled={currentlyActivating === 'metamask' && user}
-                onPress={() => activeWithMetamask()}
+                onPress={async () => {
+                  const authRes = await login()
+                  // const profile : CreateProfileRequest = {
+                  //   handle: '0xjonomnomtest'
+                  // }
+                  // await createProfile(profile, authRes.data.authenticate.accessToken)
+                  const user = await getUser(await getAddress())
+                  console.log(user)
+                  //TODO - this currently does not handle for the case where user does not have an account
+                  setLens(user.data.profiles.items[0])
+                  console.log(lens)
+                  setShowLoginDialog(false);
+                  setCheckLogin(true);
+                }}
               >
                 <ConnectWalletPopup>
                   {currentlyActivating === 'metamask' ? <>{'Confirm in your wallet'}</> : 'Continue with Metamask'}
