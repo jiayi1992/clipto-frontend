@@ -60,6 +60,7 @@ const BookingPage = () => {
 
   const getErc20Contract = () =>{
     const provider = getProviderOrSigner(library, account ? account : undefined);
+    console.log(token)
     return ERC20__factory.connect(ERC20_CONTRACTS[token], provider);
   }
 
@@ -91,7 +92,13 @@ const BookingPage = () => {
       }
       else if (token ){
         const ERC20 = getErc20Contract();
-        
+        // warning(jon) - parseUnits will assume the erc20 contract has decimal of 18
+        /**
+         * Example: 
+         *  If you have a erc20 token with a decimal of 0 you will need to do the following when parsing units:
+         * parseUnits(values.amount, 0)
+         *  Luckly, parseUnits defaults to 18 decimals which makes this not an issue unless we add erc20 with decimals other than 18 decimals.
+         */
         const tx = await ERC20.approve(EXCHANGE_ADDRESS[DEFAULT_CHAIN_ID],parseUnits(values.amount));
         toast.loading('waiting for approval');
         console.log("approve request",await tx.wait());
