@@ -81,6 +81,9 @@ export const getOpensea = (addr: string, index: number) =>
     ? `https://testnets.opensea.io/assets/mumbai/${addr}/${index}`
     : `https://opensea.io/assets/matic/${addr}/${index}`;
 
+
+export const GOOGLE_TRACK_ID = 'UA-G-LVY3DLBQ0K';
+
 export const getTokenSymbol = (token: string) => {
   return Object.keys(ERC20_CONTRACTS).find((key) => {
     return ERC20_CONTRACTS[key].toLowerCase() === token.toLowerCase();
